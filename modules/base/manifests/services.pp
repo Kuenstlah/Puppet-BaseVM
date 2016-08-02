@@ -21,8 +21,8 @@ class base::services (
 		}
 	} else {
 		@service { "crond":
-			ensure => 'stopped'
-			enable => false,,
+			ensure => 'stopped',
+			enable => false,
 		}
 
 	}
