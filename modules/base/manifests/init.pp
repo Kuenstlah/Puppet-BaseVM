@@ -14,8 +14,7 @@ class base (
 
 	realize Exec['yum_clean_all']
 	realize Service['iptables']
-	realize Service['enable_snmpd']
-	realize Service['enable_crond']
+	realize Service['crond']
 
 
 	package {'epel-release':
