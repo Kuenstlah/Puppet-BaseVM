@@ -1,0 +1,4 @@
+node /^vm./ {
+	include base
+
+}
