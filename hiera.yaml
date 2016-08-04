@@ -1,0 +1,11 @@
+# /etc/puppetlabs/code/environments/production/hiera.yaml
+---
+version: 4
+datadir: "hieradata"
+hierarchy:
+  - name: "Nodes"
+    backend: yaml
+    #path: "nodes/%{::trusted.certname}"
+    path: "nodes/%{::fqdn}"
+  - name: "common"
+    backend: yaml

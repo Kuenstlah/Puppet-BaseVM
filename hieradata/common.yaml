@@ -1,0 +1,22 @@
+base::timezone: 'Europe/Berlin'
+base::services::iptables: true
+base::services::crond:    false
+
+base::sshkeysroot::pubkeys:
+    kk:
+        line: 'ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAwWBz4HAf/ovq0Q8txxiLDVkgEykAS6jOldfoFvV5iQ+DOOLmMo/T+/dDxbJhgR4ow/1RXTstLmdM/00686d8ErUHXtnZ9jyDlgLJIdyXyV8adD+0iXhmvUx2+ZqlP4wNBfg6B56Erx8MQn9Z7E6ySDvCqxLgOKObgw7wJRsuoGxYyvO4xfOyNpvJelVfVldgWbH44e5+qYyNKrVjcN7Cbdln/Y2JF5qjzAC4MIWksiPVihw5rL3MDOHqd/Qf6JmCWz2uF2OYBr163rLVsNkN4jis94zA61iWNGffqHHMZ3xNidkq0+GkfVHYoNHiVUt5tWaQhxIEAluni+s0gf3XRQ== rsa-key-20160801-kuenstler'
+    #admin:
+        #line: '#Another admin'
+
+base::default_packages:
+    - "bash"
+    - "screen"
+    - "strace"
+    - "sysstat"
+    - "vim-enhanced"
+    - "tmpwatch"
+    - "bind-utils"
+    - "mlocate"
+    - "mc"
+    - "git"
+    - "rsync"
