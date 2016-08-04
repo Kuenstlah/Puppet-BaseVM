@@ -7,7 +7,7 @@ class base::services (
   validate_bool($crond)
 
   # iptables
-  iptables_ensure => $iptables ? {
+  $iptables_ensure = $iptables ? {
     false => 'stopped',
     true  => 'running',
   }
@@ -17,7 +17,7 @@ class base::services (
   }
 
   # cron
-  crond_ensure => $crond ? {
+  $crond_ensure = $crond ? {
     false => 'stopped',
     true  => 'running',
   }
