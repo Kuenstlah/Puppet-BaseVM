@@ -6,14 +6,14 @@ install_vim=1
 
 
 # DO NOT CHANGE THIS #
-tmp_path="/tmp/"
+tmp_path="/tmp"
 tmp_puppet="$tmp_path/PuppetBase"
-tmp_vim="$tmp_path/vim/"
-path_puppet="/etc/puppetlabs/"
-path_env="$path_puppet/code/environments/production/"
-path_mod="$path_env/modules/"
-path_man="$path_env/manifests/"
-path_vim="/root/.vim/"
+tmp_vim="$tmp_path/vim"
+path_puppet="/etc/puppetlabs"
+path_env="$path_puppet/code/environments/production"
+path_mod="$path_env/modules"
+path_man="$path_env/manifests"
+path_vim="/root/.vim"
 git_repo="git@github.com:Kuenstlah/Puppet-BaseVM.git"
 git_repo_vim="https://github.com/rodjek/vim-puppet.git"
 
@@ -52,8 +52,13 @@ if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
 fi
 grep -q puppet_run ~/.bashrc
 if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
-        echo "alias puppet_run='puppet apply $path_man/site.pp'" >> ~/.bashrc
+        echo "alias puppet_run='puppet apply --hiera_config $path_env/hiera.yaml $path_man/site.pp'" >> ~/.bashrc
 fi
+grep -q puppet_lookup ~/.bashrc
+if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
+        echo "alias puppet_lookup='puppet lookup --explain --environmentpath environments'" >> ~/.bashrc
+fi
+
 
 rpm -qa puppetserver |grep -q puppet
 # 0 = rpm is already installed
@@ -63,48 +68,42 @@ if [[ $? != 0 ]];then
 	#rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm > /dev/null 2>&1
 	rpm -Uvh --force https://yum.puppetlabs.com/puppetlabs-release-pc1-el-${rhel}.noarch.rpm > /dev/null 2>&1
 	yum install -y puppetserver> /dev/null 2>&1
-
-
 else
         echo "### Puppet is already installed, skipping installation"
 fi
 
-# Check if targeted directorys are empty, delete if yes
-if [[ -d "$path_mod" ]];then
-	rmdir $path_mod > /dev/null 2>&1
-	if [[ $? != 0 ]];then
-		echo "### ERROR: $path_mod is not empty";exit
-	fi
-fi
-if [[ -d "$path_man" ]];then
-        rmdir $path_man > /dev/null 2>&1
-        if [[ $? != 0 ]];then
-                echo "### ERROR: $path_man is not empty";exit
-        fi
-fi
-
-# Clone git repositorx with required modules
+# Clone git repository and install required modules
 echo "### Cloning Git repo into $path_env"
 if [[ -d $tmp_puppet ]];then 
 	rm -rf $tmp_puppet
 fi
-git clone $git_repo $tmp_puppet > /dev/null 2>&1
-if [[ $? != 0 ]];then
-	echo "### ERROR: Can't clone git repository";exit
+
+if [[ -d "$path_env/.git" ]];then
+	echo "# Repository already installed."
 else
-	mv $tmp_puppet/{modules,manifests} $path_env
+	git clone $git_repo $tmp_puppet > /dev/null 2>&1
 	if [[ $? != 0 ]];then
+		echo "### ERROR: Can't clone git repository";exit
+	else
+		# Check if targeted directory exists, move away if so
+		if [[ -d "$path_env" ]];then
+			echo "### Moving old environment <$path_env> to <$path_env.bak>"
+			mv $path_env $path_env.bak
+			if [[ $? != 0 ]];then
+				echo "### ERROR: Please move/delete <$path_env.bak> manually."
+				exit
+			fi
+		fi
+		mv $tmp_puppet/ $path_env
 		echo "### Installing some required puppet modules..."
 		echo "# puppetlabs-stdlib"
-	        puppet module install puppetlabs-stdlib > /dev/null 2>&1
+		puppet module install puppetlabs-stdlib > /dev/null 2>&1
 		echo "# puppetlabs-ntp"
-	        puppet module install puppetlabs-ntp > /dev/null 2>&1
-	else
-		echo "# Migrating folders did not work. Please check if following folders are empty: '$path_mod' + '$path_man'"
+		puppet module install puppetlabs-ntp > /dev/null 2>&1
+		rm -rf $tmp_puppet
 	fi
-        echo "# Removing Git repo from disk..."
-        rm -rf $tmp_puppet
 fi
+
 echo "### Testing puppet run..."
 
 # Test if puppet would run without errors
