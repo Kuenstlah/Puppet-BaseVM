@@ -1,35 +1,72 @@
 #!/bin/bash
 
+# Install followings? 1 = yes
+install_alias=1
+install_vim=1
+
+
+# DO NOT CHANGE THIS #
 tmp_path="/tmp/"
 tmp_puppet="$tmp_path/PuppetBase"
+tmp_vim="$tmp_path/vim/"
 path_puppet="/etc/puppetlabs/"
 path_env="$path_puppet/code/environments/production/"
 path_mod="$path_env/modules/"
 path_man="$path_env/manifests/"
+path_vim="/root/.vim/"
 git_repo="git@github.com:Kuenstlah/Puppet-BaseVM.git"
+git_repo_vim="https://github.com/rodjek/vim-puppet.git"
 
-rhel=`cat /etc/redhat-release | awk -F ' ' {'print $3'}| head -c 1`
-# Write alias? 1 = yes
-alias=1
+rpm -qa git |grep -q git
+if [[ $? != 0 ]];then
+	echo "### Installing Git..."
+	yum install -y git > /dev/null 2>&1
+else
+	echo "### Git is already installed, skipping installation"
+fi
+
+if [[ $install_vim == 1 ]];then
+	echo "### Installing vim..."
+	rpm -qa vim-enhanced |grep -q vim
+	if [[ $? != 0 ]];then
+		yum install -y vim-enhanced > /dev/null 2>&1
+	fi
+	if [[ ! -d "$path_vim" ]];then
+		# vim did not exist until now
+	        if [[ -d $tmp_vim ]];then
+	                rm -rf $tmp_vim
+	        fi
+
+		mkdir -p $path_vim/
+                git clone $git_repo_vim $tmp_vim > /dev/null 2>&1
+                mv $tmp_vim/* $path_vim/ > /dev/null 2>&1
+                rm -rf $tmp_vim
+	else
+		echo "# vim has already plugins installed. Delete/move '$vim_path' if you want to setup."
+	fi
+fi
 
 grep -q vim ~/.bashrc
-if [[ $? != 0 ]] && [[ $alias == 1 ]];then
+if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
         echo 'alias vi="vim -p"' >> ~/.bashrc
 fi
 grep -q puppet_run ~/.bashrc
-if [[ $? != 0 ]] && [[ $alias == 1 ]];then
+if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
         echo "alias puppet_run='puppet apply $path_man/site.pp'" >> ~/.bashrc
 fi
 
+
+exit
 rpm -qa puppetserver |grep -q puppet
 # 0 = rpm is already installed
 if [[ $? != 0 ]];then
+	rhel=`cat /etc/redhat-release | awk -F ' ' {'print $3'}| head -c 1`
 	echo "### Installing puppet..."
 	#rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm > /dev/null 2>&1
 	rpm -Uvh --force https://yum.puppetlabs.com/puppetlabs-release-pc1-el-${rhel}.noarch.rpm > /dev/null 2>&1
-	yum install -y puppetserver git vim-enhanced > /dev/null 2>&1
+	yum install -y puppetserver> /dev/null 2>&1
 else
-        echo "### Puppet is already installed, skipping its installation"
+        echo "### Puppet is already installed, skipping installation"
 fi
 
 # Check if targeted directorys are empty, delete if yes
@@ -38,10 +75,12 @@ if [[ -d "$path_mod" ]];then
 	if [[ $? != 0 ]];then
 		echo "### ERROR: $path_mod is not empty";exit
 	fi
-	rmdir $path_man > /dev/null 2>&1
-	if [[ $? != 0 ]];then
-		echo "### ERROR: $path_man is not empty";exit
-	fi
+fi
+if [[ -d "$path_man" ]];then
+        rmdir $path_man > /dev/null 2>&1
+        if [[ $? != 0 ]];then
+                echo "### ERROR: $path_man is not empty";exit
+        fi
 fi
 
 # Clone git repositorx with required modules
