@@ -42,7 +42,7 @@ if [[ $install_vim == 1 ]];then
                 mv $tmp_vim/* $path_vim/ > /dev/null 2>&1
                 rm -rf $tmp_vim
 	else
-		echo "# vim has already plugins installed. Delete/move '$vim_path' if you want to setup."
+		echo "# vim has already plugins installed. Delete/move '$path_vim' if you want to setup."
 	fi
 fi
 
