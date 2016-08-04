@@ -2,6 +2,10 @@ class base::services (
 	$iptables = $::base::params::iptables,
 	$crond	  = $::base::params::crond
 ) {
+
+  #validate_bool($iptables)
+  #validate_bool($crond)
+
 	if ($iptables) {
 		@service { "iptables":
 			ensure => 'running',

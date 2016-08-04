@@ -1,7 +1,7 @@
 class base (
-	$timezone = $::base::params::timezone,
-	$crond_status = $::base::params::crond_status,
-	$iptables = $::base::params::iptables,
+	$timezone         = $::base::params::timezone,
+	$crond            = $::base::params::crond,
+	$iptables         = $::base::params::iptables,
 	$default_packages = $::base::params::default_packages,
 ) inherits base::params {
 
@@ -16,6 +16,7 @@ class base (
 	realize Service['iptables']
 	realize Service['crond']
 
+# resolv.conf
 
 	package {'epel-release':
 		name    => "epel-release",
@@ -32,7 +33,7 @@ class base (
 
 	class { '::ntp':
 		servers => [ '0.centos.pool.ntp.org', '1.centos.pool.ntp.org','2.centos.pool.ntp.org','127.127.1.0'],
-		restrict => $ntp_restrict,
+		restrict => $ntp::restrict,
 		driftfile => '/var/lib/ntp/drift',
 		keys_enable => true,
 		keys_file => '/etc/ntp/keys',
