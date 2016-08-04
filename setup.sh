@@ -55,8 +55,6 @@ if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
         echo "alias puppet_run='puppet apply $path_man/site.pp'" >> ~/.bashrc
 fi
 
-
-exit
 rpm -qa puppetserver |grep -q puppet
 # 0 = rpm is already installed
 if [[ $? != 0 ]];then
@@ -65,6 +63,8 @@ if [[ $? != 0 ]];then
 	#rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm > /dev/null 2>&1
 	rpm -Uvh --force https://yum.puppetlabs.com/puppetlabs-release-pc1-el-${rhel}.noarch.rpm > /dev/null 2>&1
 	yum install -y puppetserver> /dev/null 2>&1
+
+
 else
         echo "### Puppet is already installed, skipping installation"
 fi
