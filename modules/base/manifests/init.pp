@@ -1,14 +1,14 @@
 class base (
-	$timezone         = $::base::params::timezone,
-	$crond            = $::base::params::crond,
-	$iptables         = $::base::params::iptables,
-	$default_packages = $::base::params::default_packages,
-) inherits base::params {
+	$timezone         = undef,
+	$default_packages = undef,
+) {
 
 	include base::services
 	include base::execs
-	include base::params
 	include base::sshkeysroot
+  include base::packages
+  validate_string($timezone)
+  validate_array($default_packages)
 
 	ensure_packages($default_packages)
 

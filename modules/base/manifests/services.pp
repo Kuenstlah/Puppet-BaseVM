@@ -1,34 +1,30 @@
 class base::services (
-	$iptables = $::base::params::iptables,
-	$crond	  = $::base::params::crond
+	$iptables = undef,
+	$crond	  = undef
 ) {
 
-  #validate_bool($iptables)
-  #validate_bool($crond)
+  validate_bool($iptables)
+  validate_bool($crond)
 
-	if ($iptables) {
-		@service { "iptables":
-			ensure => 'running',
-			enable => true,
-		}
-	}
-	else {
-		@service { "iptables":
-			ensure => 'stopped',
-			enable => false,
-		}
-	}
-        if ($crond) {
-		@service { "crond":
-                        ensure => 'running',
-                        enable => true,
-		}
-	} else {
-		@service { "crond":
-			ensure => 'stopped',
-			enable => false,
-		}
+  # iptables
+  iptables_ensure => $iptables ? {
+    false => 'stopped',
+    true  => 'running',
+  }
+  @service { "iptables":
+    ensure => $iptables_ensure,
+    enable => $iptables,
+  }
 
-	}
+  # cron
+  crond_ensure => $crond ? {
+    false => 'stopped',
+    true  => 'running',
+  }
+  @service { "crond":
+    ensure => $crond_ensure,
+    enable => $crond,
+  }
+
 
 }
