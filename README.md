@@ -1,7 +1,7 @@
 # Puppet-BaseVM
 
 Installs puppet server+agent and configures specific base settings for a local server.
-
+Does <b>NOT</b> run a puppet server.
 
 # Tasks
 - Adds and configures sshkey for root (add your pub.key)
