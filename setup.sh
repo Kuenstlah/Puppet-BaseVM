@@ -17,6 +17,13 @@ path_vim="/root/.vim"
 git_repo="git@github.com:Kuenstlah/Puppet-BaseVM.git"
 git_repo_vim="https://github.com/rodjek/vim-puppet.git"
 
+
+grep -i SELINUX= /etc/selinux/config |grep -q disabled
+if [[ $? != 0 ]];then
+        echo "### SELINUX is active. Turning it off now, please reboot your server!"
+	sed "s/SELINUX=.*/SELINUX=disabled/g" -i /etc/selinux/config	
+fi
+
 rpm -qa git |grep -q git
 if [[ $? != 0 ]];then
 	echo "### Installing Git..."
@@ -95,26 +102,17 @@ else
 			fi
 		fi
 		mv $tmp_puppet/ $path_env
-		echo "### Installing some required puppet modules..."
-		echo "# puppetlabs-stdlib"
-		/opt/puppetlabs/bin/puppet module install puppetlabs-stdlib > /dev/null 2>&1
-		echo "# puppetlabs-ntp"
-		/opt/puppetlabs/bin/puppet module install puppetlabs-ntp > /dev/null 2>&1
 		rm -rf $tmp_puppet
 	fi
 fi
 
-echo "### Testing puppet run..."
-
-# Test if puppet would run without errors
-/opt/puppetlabs/bin/puppet apply $path_man/site.pp --noop --detailed-exitcodes > /dev/null 2>&1
-
-# Rim puppet if test was successfull
-if [[ $? != 0 ]];then
-	echo "### ERROR: Puppet has problems. Please run 'puppet apply $path_man/site.pp --noop'! Re-run script after fixing issues."
-else
-	echo "### Running puppet..."
-	puppet apply $path_man/site.pp
+if [[ ! -d "$path_mod/stdlib" ]];then
+	echo "### Installing puppetlabs-stdlib.."
+	/opt/puppetlabs/bin/puppet module install puppetlabs-stdlib > /dev/null 2>&1
+fi
+if [[ ! -d "$path_mod/ntp" ]];then
+        echo "### Installing puppetlabs-ntp.."
+        /opt/puppetlabs/bin/puppet module install puppetlabs-ntp > /dev/null 2>&1
 fi
 
-echo "### Finished !"
+echo "### Done. You can start Puppet by using following command: 'puppet apply $path_man/site.pp'"
