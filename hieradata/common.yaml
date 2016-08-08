@@ -8,15 +8,16 @@ base::sshkeysroot::pubkeys:
     #admin:
         #line: '#Another admin'
 
-base::default_packages:
-    - "bash"
-    - "screen"
-    - "strace"
-    - "sysstat"
-    - "vim-enhanced"
-    - "tmpwatch"
-    - "bind-utils"
-    - "mlocate"
-    - "mc"
-    - "git"
-    - "rsync"
+base::packages::default_packages:
+    - bash
+    - screen
+    - strace
+    - sysstat
+    - vim-enhanced
+    - tmpwatch
+    - bind-utils
+    - mlocate
+    - mc
+    - git
+    - rsync
+    - wget
