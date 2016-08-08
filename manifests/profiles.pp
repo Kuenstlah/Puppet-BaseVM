@@ -1,7 +1,12 @@
 class profile::base {
   include base
 }
-
+class profile::mysql_server {
+  include mysql::server
+}
+class profile::mysql_client {
+  include mysql::client
+}
 class profile::jira {
   include profile::base
   include profile::mysql_server
@@ -21,4 +26,14 @@ class profile::jira {
     refreshonly => true,
   }
 
+
+  file { '/root/jira-home':
+    ensure => 'link',
+    target => '/var/atlassian/application-data/jira',
+  }
+  file_line { 'Increase timeout for loading plugins':
+    path => '/opt/atlassian/jira/bin/setenv.sh',
+    line => 'JVM_SUPPORT_RECOMMENDED_ARGS="-Datlassian.plugins.enable.wait=300"',
+    match   => "^JVM_SUPPORT_RECOMMENDED_ARGS=.*$",
+  }
 }
