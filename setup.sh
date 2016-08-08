@@ -97,9 +97,9 @@ else
 		mv $tmp_puppet/ $path_env
 		echo "### Installing some required puppet modules..."
 		echo "# puppetlabs-stdlib"
-		puppet module install puppetlabs-stdlib > /dev/null 2>&1
+		/opt/puppetlabs/bin/puppet module install puppetlabs-stdlib > /dev/null 2>&1
 		echo "# puppetlabs-ntp"
-		puppet module install puppetlabs-ntp > /dev/null 2>&1
+		/opt/puppetlabs/bin/puppet module install puppetlabs-ntp > /dev/null 2>&1
 		rm -rf $tmp_puppet
 	fi
 fi
@@ -107,7 +107,7 @@ fi
 echo "### Testing puppet run..."
 
 # Test if puppet would run without errors
-puppet apply $path_man/site.pp --noop --detailed-exitcodes > /dev/null 2>&1
+/opt/puppetlabs/bin/puppet apply $path_man/site.pp --noop --detailed-exitcodes > /dev/null 2>&1
 
 # Rim puppet if test was successfull
 if [[ $? != 0 ]];then
