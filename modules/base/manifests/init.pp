@@ -1,6 +1,5 @@
 class base (
 	$timezone         = undef,
-	$default_packages = undef,
 ) {
 
 	include base::services
@@ -8,21 +7,12 @@ class base (
 	include base::sshkeysroot
   include base::packages
   validate_string($timezone)
-  validate_array($default_packages)
-
-	ensure_packages($default_packages)
 
 	realize Exec['yum_clean_all']
 	realize Service['iptables']
 	realize Service['crond']
 
 # resolv.conf
-
-	package {'epel-release':
-		name    => "epel-release",
-		ensure  => latest,
-		notify  => Exec['yum_clean_all'],
-	}
 
 	file { "link_localtime_to_$timezone":
 		path    => '/etc/localtime',
