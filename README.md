@@ -11,8 +11,9 @@ Does <b>NOT</b> run a puppet server.
 
 # Configuration
 - Run 'setup.sh' to install and setup Puppet v4
+- Use '/etc/puppetlabs/code/environment/production/' as default path.
 - Rename 'hieradata/nodes/vm1.test.local.yaml' to the FQDN of your machine
-- Check 'hieradata/common.yaml' since it is used for global configuration. Once a .yaml in hieradata/nodes/ missess a parameter, common.yaml will be used.
+- Check 'hieradata/common.yaml' since it is used for global configuration. Once a .yaml in hieradata/nodes/ misses a parameter, common.yaml will be used.
 - Run puppet in a local instance: 'puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
 
 
