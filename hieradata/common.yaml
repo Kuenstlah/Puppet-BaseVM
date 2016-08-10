@@ -28,3 +28,5 @@ base::packages::default_packages:
     - "cronie"
     - "sysstat"
     - "perl-DBD-MySQL"
+    - "policycoreutils-python" # For Virtualbox Guestadditions
+
