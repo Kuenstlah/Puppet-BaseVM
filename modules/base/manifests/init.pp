@@ -22,11 +22,7 @@ class base (
 	}
 
 	class { '::ntp':
-		servers => [ '0.centos.pool.ntp.org', '1.centos.pool.ntp.org','2.centos.pool.ntp.org','127.127.1.0'],
-		restrict => $ntp::restrict,
-		driftfile => '/var/lib/ntp/drift',
-		keys_enable => true,
-		keys_file => '/etc/ntp/keys',
+		servers => [ '0.centos.pool.ntp.org', '1.centos.pool.ntp.org','2.centos.pool.ntp.org'],
 	}
 
 

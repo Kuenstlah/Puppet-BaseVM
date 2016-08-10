@@ -1,6 +1,10 @@
+---
+classes:
+    - profile::base
+
 base::timezone: 'Europe/Berlin'
 base::services::iptables: true
-base::services::crond:    false
+base::services::crond:    true
 
 base::sshkeysroot::pubkeys:
     kk:
@@ -21,3 +25,6 @@ base::packages::default_packages:
     - "git"
     - "rsync"
     - "wget"
+    - "cronie"
+    - "sysstat"
+    - "perl-DBD-MySQL"
