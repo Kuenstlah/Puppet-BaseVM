@@ -122,6 +122,13 @@ else
 	fi
 fi
 
+if [[ ! -f "/root/puppet" ]];then
+	ln -sf /etc/puppetlabs/code/environments/production/ /root/puppet
+fi
+if [[ ! -f "/root/vm" ]];then
+	ln -sf /media/sf_vm /root/vm
+fi
+
 if [[ ! -d "$path_mod/stdlib" ]];then
 	echo "### Installing puppetlabs-stdlib.."
 	/opt/puppetlabs/bin/puppet module install puppetlabs-stdlib > /dev/null 2>&1
