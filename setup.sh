@@ -55,7 +55,23 @@ fi
 
 grep -q vim ~/.bashrc
 if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
-        echo 'alias vi="vim -p"' >> ~/.bashrc
+        echo "alias vi='vim -p'" >> ~/.bashrc
+fi
+grep -q jira_checklock ~/.bashrc
+if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
+        echo "alias jira_checklock='ls /var/atlassian/application-data/jira/.jira-home.lock'" >> ~/.bashrc
+fi
+grep -q jira_cdhome ~/.bashrc
+if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
+        echo "alias jira_cdhome='cd /var/atlassian/application-data/jira/'" >> ~/.bashrc
+fi
+grep -q jira_cdinstall ~/.bashrc
+if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
+        echo "alias jira_cdinstall='cd /opt/atlassian/jira/'" >> ~/.bashrc
+fi
+grep -q jira_log ~/.bashrc
+if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
+        echo "alias jira_log='tail -f /opt/atlassian/jira/logs/catalina.out /var/atlassian/application-data/jira/log/atlassian-jira.log'" >> ~/.bashrc
 fi
 grep -q puppet_run ~/.bashrc
 if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
