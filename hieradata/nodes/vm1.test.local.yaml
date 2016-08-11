@@ -1,7 +1,0 @@
----
-classes:
-    - profile::base
-    - profile::jira
-
-base::services::iptables: false
-base::services::crond:    true
