@@ -1,141 +1,32 @@
 #!/bin/bash
 
-# Install followings? 1 = yes
+# Debug messages? Run script with --debug
+
+# Install? 1 = yes
 install_alias=1
 install_vim=1
 
+####################################################################################
+# DO NOT CHANGE SOMETHING BELOW THIS LINE, IF YOU DO NOT KNOW WHAT YOU ARE DOING ! #
+####################################################################################
 
-# DO NOT CHANGE THIS #
-tmp_path="/tmp"
-tmp_puppet="$tmp_path/PuppetBase"
-tmp_vim="$tmp_path/vim"
-path_puppet="/etc/puppetlabs"
-path_env="$path_puppet/code/environments/production"
-path_mod="$path_env/modules"
-path_man="$path_env/manifests"
-path_vim="/root/.vim"
-git_repo="git@github.com:Kuenstlah/Puppet-BaseVM.git"
-git_repo_vim="https://github.com/rodjek/vim-puppet.git"
+source $(dirname "$0")/setup_source.sh
 
+check_selinux disabled
 
-grep -i SELINUX= /etc/selinux/config |grep -q disabled
-if [[ $? != 0 ]];then
-        echo "### SELINUX is active. Turning it off now, please reboot your server!"
-	sed "s/SELINUX=.*/SELINUX=disabled/g" -i /etc/selinux/config	
-fi
+check_rpm git
 
-rpm -qa git |grep -q git
-if [[ $? != 0 ]];then
-	echo "### Installing Git..."
-	yum install -y git > /dev/null 2>&1
-else
-	echo "### Git is already installed, skipping installation"
-fi
+install_vim
 
-if [[ $install_vim == 1 ]];then
-	echo "### Installing vim..."
-	rpm -qa vim-enhanced |grep -q vim
-	if [[ $? != 0 ]];then
-		yum install -y vim-enhanced > /dev/null 2>&1
-	fi
-	if [[ ! -d "$path_vim" ]];then
-		# vim did not exist until now
-	        if [[ -d $tmp_vim ]];then
-	                rm -rf $tmp_vim
-	        fi
+check_puppetrepo
 
-		mkdir -p $path_vim/
-                git clone $git_repo_vim $tmp_vim > /dev/null 2>&1
-                mv $tmp_vim/* $path_vim/ > /dev/null 2>&1
-                rm -rf $tmp_vim
-	else
-		echo "# vim has already plugins installed. Delete/move '$path_vim' if you want to setup."
-	fi
-fi
+check_rpm puppetserver
 
-grep -q vim ~/.bashrc
-if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
-        echo "alias vi='vim -p'" >> ~/.bashrc
-fi
-grep -q jira_checklock ~/.bashrc
-if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
-        echo "alias jira_checklock='ls /var/atlassian/application-data/jira/.jira-home.lock'" >> ~/.bashrc
-fi
-grep -q jira_cdhome ~/.bashrc
-if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
-        echo "alias jira_cdhome='cd /var/atlassian/application-data/jira/'" >> ~/.bashrc
-fi
-grep -q jira_cdinstall ~/.bashrc
-if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
-        echo "alias jira_cdinstall='cd /opt/atlassian/jira/'" >> ~/.bashrc
-fi
-grep -q jira_log ~/.bashrc
-if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
-        echo "alias jira_log='tail -f /opt/atlassian/jira/logs/catalina.out /var/atlassian/application-data/jira/log/atlassian-jira.log'" >> ~/.bashrc
-fi
-grep -q puppet_run ~/.bashrc
-if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
-        echo "alias puppet_run='puppet apply --hiera_config $path_env/hiera.yaml $path_man/site.pp'" >> ~/.bashrc
-fi
-grep -q puppet_lookup ~/.bashrc
-if [[ $? != 0 ]] && [[ $install_alias == 1 ]];then
-        echo "alias puppet_lookup='puppet lookup --explain --environmentpath environments'" >> ~/.bashrc
-fi
+delete_folder_tmp_puppet
 
+git_clone_repo
 
-rpm -qa puppetserver |grep -q puppet
-# 0 = rpm is already installed
-if [[ $? != 0 ]];then
-	rhel=`cat /etc/redhat-release | awk -F ' ' {'print $3'}| head -c 1`
-	echo "### Installing puppet..."
-	#rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm > /dev/null 2>&1
-	rpm -Uvh --force https://yum.puppetlabs.com/puppetlabs-release-pc1-el-${rhel}.noarch.rpm > /dev/null 2>&1
-	yum install -y puppetserver> /dev/null 2>&1
-else
-        echo "### Puppet is already installed, skipping installation"
-fi
+check_module puppetlabs-stdlib
+check_module puppetlabs-ntp
 
-# Clone git repository and install required modules
-echo "### Cloning Git repo into $path_env"
-if [[ -d $tmp_puppet ]];then 
-	rm -rf $tmp_puppet
-fi
-
-if [[ -d "$path_env/.git" ]];then
-	echo "# Repository already installed."
-else
-	git clone $git_repo $tmp_puppet > /dev/null 2>&1
-	if [[ $? != 0 ]];then
-		echo "### ERROR: Can't clone git repository";exit
-	else
-		# Check if targeted directory exists, move away if so
-		if [[ -d "$path_env" ]];then
-			echo "### Moving old environment <$path_env> to <$path_env.bak>"
-			mv $path_env $path_env.bak
-			if [[ $? != 0 ]];then
-				echo "### ERROR: Please move/delete <$path_env.bak> manually."
-				exit
-			fi
-		fi
-		mv $tmp_puppet/ $path_env
-		rm -rf $tmp_puppet
-	fi
-fi
-
-if [[ ! -f "/root/puppet" ]];then
-	ln -sf /etc/puppetlabs/code/environments/production/ /root/puppet
-fi
-if [[ ! -f "/root/vm" ]];then
-	ln -sf /media/sf_vm /root/vm
-fi
-
-if [[ ! -d "$path_mod/stdlib" ]];then
-	echo "### Installing puppetlabs-stdlib.."
-	/opt/puppetlabs/bin/puppet module install puppetlabs-stdlib > /dev/null 2>&1
-fi
-if [[ ! -d "$path_mod/ntp" ]];then
-        echo "### Installing puppetlabs-ntp.."
-        /opt/puppetlabs/bin/puppet module install puppetlabs-ntp > /dev/null 2>&1
-fi
-
-echo "### Done. You can start Puppet by using following command: 'puppet apply $path_man/site.pp'"
+finish
