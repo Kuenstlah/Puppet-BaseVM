@@ -2,9 +2,19 @@
 classes:
     - profile::base
 
+base::ntp_servers:
+    - "0.de.pool.ntp.org"
+    - "1.de.pool.ntp.org"
+    - "0.centos.pool.ntp.org"
+    - "1.centos.pool.ntp.org"
+    - "2.centos.pool.ntp.org"
+
 base::timezone: 'Europe/Berlin'
 base::services::iptables: true
 base::services::crond:    true
+base::vm_shared_folder: undef
+
+base::files::puppet_homedir: '/etc/puppetlabs/'
 
 base::sshkeysroot::pubkeys:
     kk:
@@ -29,4 +39,4 @@ base::packages::default_packages:
     - "sysstat"
     - "perl-DBD-MySQL"
     - "policycoreutils-python" # For Virtualbox Guestadditions
-
+    - "lynx"

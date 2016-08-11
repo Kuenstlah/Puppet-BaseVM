@@ -1,0 +1,9 @@
+---
+classes:
+    - profile::base
+#    - profile::jira
+
+base::vm_shared_folder: '/media/sf_vm'
+
+base::services::iptables: false
+base::services::crond:    true
